@@ -94,10 +94,9 @@ class LiveMenu:
                 menu_list.append(f"{indent}[{style}]{item:<{length}}[/]")
 
         if self.prefix:
-            text = self.prefix + Text.from_markup("\n".join(menu_list))
+            return self.prefix + Text.from_markup("\n".join(menu_list))
         else:
-            text = Text.from_markup("\n".join(menu_list))
-        return text
+            return Text.from_markup("\n".join(menu_list))
 
     def get_key(self) -> str | None:
         old = termios.tcgetattr(self.fd)
@@ -117,103 +116,102 @@ class LiveMenu:
         ) as live:
             while True:
                 key = self.get_key()
-                if key:
-                    # TAB, Down Arrow, Ctrl-n
-                    if key in ["\t", "\x1b[B", "\x0e"]:
-                        if self.selected < len(self.items) - 1:
-                            self.selected += 1
-                            if self.selected > self.stop_idx - 1:
-                                self.stop_idx = self.selected + 1
-                                self.start_idx = (
-                                    self.stop_idx - self.menu_height
-                                )
-                        else:
-                            self.selected = -1
-                            self.start_idx = 0
-                            self.stop_idx = self.menu_height
 
-                    # Shift-TAB, Up Arrow, Ctrl-p
-                    elif key in ["\x1b[Z", "\x1b[A", "\x10"]:
-                        if self.selected > -1:
-                            self.selected -= 1
-                            if self.selected < self.start_idx:
-                                self.start_idx = max(self.selected, 0)
-                                self.stop_idx = (
-                                    self.start_idx + self.menu_height
-                                )
-                        else:
-                            self.selected = len(self.items) - 1
+                # TAB, Down Arrow, Ctrl-n
+                if key in ["\t", "\x1b[B", "\x0e"]:
+                    if self.selected < len(self.items) - 1:
+                        self.selected += 1
+                        if self.selected > self.stop_idx - 1:
                             self.stop_idx = self.selected + 1
-                            self.start_idx = max(
-                                0, self.stop_idx - self.menu_height
-                            )
+                            self.start_idx = self.stop_idx - self.menu_height
+                    else:
+                        self.selected = -1
+                        self.start_idx = 0
+                        self.stop_idx = self.menu_height
 
-                    # Enter, Escape
-                    elif key in ["\n", "\x1b"]:
-                        if self.selected != -1:
-                            head = self.cmd_line[: self.cmd_point]
-                            tail = self.cmd_line[self.cmd_point :]
-                            if self.word and self.items[
-                                self.selected
-                            ].startswith(self.word):
-                                head = head.removesuffix(self.word)
-                                self.cmd_point -= len(self.word)
-                            head += f"{self.items[self.selected]}"
-                            self.cmd_line = head + tail
-                            self.cmd_point += len(self.items[self.selected])
+                # Shift-TAB, Up Arrow, Ctrl-p
+                elif key in ["\x1b[Z", "\x1b[A", "\x10"]:
+                    if self.selected > -1:
+                        self.selected -= 1
+                        if self.selected < self.start_idx:
+                            self.start_idx = max(self.selected, 0)
+                            self.stop_idx = self.start_idx + self.menu_height
+                    else:
+                        self.selected = len(self.items) - 1
+                        self.stop_idx = self.selected + 1
+                        self.start_idx = max(
+                            0, self.stop_idx - self.menu_height
+                        )
 
+                # Enter, Escape
+                elif key in ["\n", "\x1b"]:
+                    if self.selected != -1:
+                        head = self.cmd_line[: self.cmd_point]
+                        tail = self.cmd_line[self.cmd_point :]
+                        if self.word and self.items[self.selected].startswith(
+                            self.word
+                        ):
+                            head = head.removesuffix(self.word)
+                            self.cmd_point -= len(self.word)
+                        head += f"{self.items[self.selected]}"
+                        self.cmd_line = head + tail
+                        self.cmd_point += len(self.items[self.selected])
+
+                    return self.cmd_point, self.cmd_line
+
+                # " " <= key <= "~":
+                elif key and key.isprintable():
+                    head = self.cmd_line[: self.cmd_point]
+                    tail = self.cmd_line[self.cmd_point :]
+                    if self.selected != -1:
+                        head = (
+                            head.removesuffix(self.word)
+                            + self.items[self.selected]
+                        )
+                        self.cmd_point += len(
+                            self.items[self.selected]
+                        ) - len(self.word)
+                        self.word = ""
+                        self.selected = -1
+                        self.start_idx = 0
+                        self.stop_idx = self.start_idx + self.menu_height
+                    else:
+                        self.word = ""
+                    self.cmd_line = head + key + tail
+                    self.cmd_point += 1
+
+                    self.start_process()
+
+                # Backspace
+                elif key == "\x7f":
+                    if self.cmd_point <= 0:
                         return self.cmd_point, self.cmd_line
 
-                    # " " <= key <= "~":
-                    elif key.isprintable():
-                        head = self.cmd_line[: self.cmd_point]
-                        tail = self.cmd_line[self.cmd_point :]
-                        if self.selected != -1:
-                            head = (
-                                head.removesuffix(self.word)
-                                + self.items[self.selected]
-                            )
-                            self.cmd_point += len(
-                                self.items[self.selected]
-                            ) - len(self.word)
-                            self.word = ""
-                            self.selected = -1
-                            self.start_idx = 0
-                            self.stop_idx = self.start_idx + self.menu_height
-                        else:
-                            self.word = ""
-                        self.cmd_line = head + key + tail
-                        self.cmd_point += 1
+                    head = self.cmd_line[: self.cmd_point]
+                    tail = self.cmd_line[self.cmd_point :]
 
-                        self.start_process()
+                    if self.selected != -1:
+                        # Replace word with selected item, than backtrack
+                        head = (
+                            head.removesuffix(self.word)
+                            + self.items[self.selected]
+                        )
+                        self.cmd_point += len(
+                            self.items[self.selected]
+                        ) - len(self.word)
+                        self.word = self.items[self.selected][:-1]
+                        self.completed = True
+                        self.selected = -1
 
-                    # Backspace
-                    elif key == "\x7f":
-                        if self.cmd_point <= 0:
-                            return self.cmd_point, self.cmd_line
-                        head = self.cmd_line[: self.cmd_point]
-                        tail = self.cmd_line[self.cmd_point :]
-                        if self.selected != -1:
-                            # Replace word with selected item, than backtrack
-                            head = (
-                                head.removesuffix(self.word)
-                                + self.items[self.selected]
-                            )
-                            self.cmd_point += len(
-                                self.items[self.selected]
-                            ) - len(self.word)
-                            self.word = self.items[self.selected][:-1]
-                            self.completed = True
-                            self.selected = -1
-                        elif self.word:
-                            # Remove last character in word
-                            self.word = self.word[:-1]
+                    elif self.word:
+                        # Remove last character in word
+                        self.word = self.word[:-1]
 
-                        # Remove character before point
-                        self.cmd_line = head[:-1] + tail
-                        self.cmd_point -= 1
+                    # Remove character before point
+                    self.cmd_line = head[:-1] + tail
+                    self.cmd_point -= 1
 
-                        self.start_process()
+                    self.start_process()
 
                 live.update(self.display_menu(), refresh=True)
 
