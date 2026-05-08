@@ -18,5 +18,6 @@ bash_menu_comp() {
         fi
     fi
 }
+bind -m vi-command -x '"\em": bash_menu_comp'
 bind -m vi-insert -x '"\em": bash_menu_comp'
 
