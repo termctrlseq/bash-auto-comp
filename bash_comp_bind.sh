@@ -6,8 +6,8 @@ bash_menu_comp() {
     bash_completion.py \
         "$READLINE_LINE" \
         "$READLINE_POINT" \
-        "${mode@P}${PS1@P}" \
-        "$cmd_file"
+        "$cmd_file" \
+        "${mode@P}${PS1@P}"
 
     if [[ -r "$cmd_file" ]]; then
         mapfile -t result <"$cmd_file"
