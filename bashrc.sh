@@ -1,9 +1,9 @@
-bash_menu_comp() {
+bash_auto_comp() {
     local mode="\[\e[1;38;5;8m\][i]\[\e[0m\]"
     local cmd_file result
     cmd_file="$(mktemp)"
 
-    bash_completion.py \
+    bash_auto_comp.py \
         "$READLINE_LINE" \
         "$READLINE_POINT" \
         "$cmd_file" \
@@ -18,6 +18,6 @@ bash_menu_comp() {
         fi
     fi
 }
-bind -m vi-command -x '"\em": bash_menu_comp'
-bind -m vi-insert -x '"\em": bash_menu_comp'
+bind -m vi-command -x '"\em": bash_auto_comp'
+bind -m vi-insert -x '"\em": bash_auto_comp'
 

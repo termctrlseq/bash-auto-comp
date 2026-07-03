@@ -40,7 +40,7 @@ class LiveMenu:
         self.menu_style = "color(66) on color(235)"
         self.menu_sel_style = "bold magenta on color(237)"
 
-        self.bash_completion = Path(__file__).parent / "bash_completion.sh"
+        self.bash_completion = Path(__file__).parent / "bash_auto_comp.sh"
         self.proc = None
         self.start_process()
 

@@ -1,0 +1,10 @@
+{
+  "venvPath": ".",
+  "venv": ".venv",
+
+  "pythonPlatform": "Linux",
+  "pythonVersion": "3.14",
+
+  "typeCheckingMode": "basic",
+  "analyzeUnannotatedFunctions": "false"
+}
