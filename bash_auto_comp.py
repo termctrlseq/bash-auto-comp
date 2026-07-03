@@ -56,12 +56,6 @@ class LiveMenu:
         self.stop_idx = self.start_idx + self.menu_height
         self.selected = -1
 
-    def __enter__(self):
-        return self
-
-    def __exit__(self, exc_type, exc_value, traceback):
-        return False
-
     def display_menu(self) -> Text:
         self.get_proc_output()
 
@@ -261,12 +255,10 @@ def main() -> None:
     prefix = sys.argv[4]
     result = None
 
-    with LiveMenu(
-        cmd_line=cmd_line, cmd_point=cmd_point, prefix=prefix
-    ) as menu:
-        while result is None:
-            menu.display_menu()
-            result = menu.parse_input()
+    menu = LiveMenu(cmd_line=cmd_line, cmd_point=cmd_point, prefix=prefix)
+    while result is None:
+        menu.display_menu()
+        result = menu.parse_input()
 
     cmd_point, cmd_line = result
     with cmd_file.open("w") as fd:
