@@ -1,6 +1,7 @@
 bash_auto_comp() {
     local mode="\[\e[1;38;5;8m\][i]\[\e[0m\]"
-    local cmd_file result
+    local cmd_file
+    local -a result
     cmd_file="$(mktemp)" || return
     trap 'rm -f "$cmd_file"' RETURN
 
