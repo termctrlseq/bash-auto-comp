@@ -2,6 +2,7 @@ bash_auto_comp() {
     local mode="\[\e[1;38;5;8m\][i]\[\e[0m\]"
     local cmd_file result
     cmd_file="$(mktemp)"
+    trap 'rm -f "$cmd_file"' RETURN
 
     bash_auto_comp.py \
         "$READLINE_LINE" \
@@ -11,7 +12,6 @@ bash_auto_comp() {
 
     if [[ -r "$cmd_file" ]]; then
         mapfile -t result <"$cmd_file"
-        rm -f "$cmd_file"
         if ((${#result[@]} == 2)); then
             READLINE_POINT="${result[0]}"
             READLINE_LINE="${result[1]}"
