@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
-# A copy of bash-completion _comp_command_offset() function
-# modified to use as auto completion source
+# Derived from the bash-completion function _comp_command_offset()
+# with modifications for use as an auto-completion source.
 # Last Change:  2026-01-26
 # License:      GNU General Public License version 2 or later
 #
