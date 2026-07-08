@@ -1,5 +1,9 @@
 bash_auto_comp() {
-    local mode="\[\e[1;38;5;8m\][i]\[\e[0m\]"
+    local mode=""
+    # Optional: prepend a vi-mode indicator (for show-mode-in-prompt users).
+    # Uncomment and customize.
+    # mode="\[\e[1;38;5;8m\][i]\[\e[0m\]"
+    local prompt="${mode}${PS1}"
     local cmd_file
     local -a result
     cmd_file="$(mktemp)" || return
@@ -9,7 +13,7 @@ bash_auto_comp() {
         "$READLINE_LINE" \
         "$READLINE_POINT" \
         "$cmd_file" \
-        "${mode@P}${PS1@P}"
+        "${prompt@P}"
 
     if [[ -r "$cmd_file" ]]; then
         mapfile -t result <"$cmd_file"
@@ -21,4 +25,5 @@ bash_auto_comp() {
 }
 bind -m vi-command -x '"\em": bash_auto_comp'
 bind -m vi-insert -x '"\em": bash_auto_comp'
+bind -m emacs -x '"\em": bash_auto_comp'
 
