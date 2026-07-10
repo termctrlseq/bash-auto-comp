@@ -47,7 +47,7 @@ class LiveMenu:
 
         self.bash_completion = Path(__file__).parent / "bash_auto_comp.sh"
         self.proc = None
-        self.start_process()
+        self._start_process()
 
         self.fd = sys.stdin.fileno()
         try:
@@ -61,15 +61,15 @@ class LiveMenu:
         self.stop_idx = self.start_idx + self.menu_height
         self.selected = -1
 
-    def wrap_text(self, text: Text) -> int | None:
+    def _wrap_text(self, text: Text) -> int | None:
         lines = text.wrap(console, console.width)
         if len(lines) > 1:
             return lines[0].cell_len
 
         return None
 
-    def prepare_menu(self) -> Text:
-        self.get_proc_output()
+    def _prepare_menu(self) -> Text:
+        self._get_proc_output()
 
         text = self.prefix.copy()
         indent = " " * (text.cell_len + self.cmd_point - len(self.word))
@@ -92,7 +92,7 @@ class LiveMenu:
             )
         )
 
-        if wrap := self.wrap_text(text.copy()):
+        if wrap := self._wrap_text(text.copy()):
             indent = indent[wrap:]
 
         if self.completed:
@@ -115,7 +115,7 @@ class LiveMenu:
 
         return text
 
-    def get_key(self) -> str | None:
+    def _get_key(self) -> str | None:
         old = termios.tcgetattr(self.fd)
         try:
             tty.setcbreak(self.fd)
@@ -127,8 +127,8 @@ class LiveMenu:
 
         return None
 
-    def parse_input(self) -> tuple[int, str] | None:
-        key = self.get_key()
+    def _parse_input(self) -> tuple[int, str] | None:
+        key = self._get_key()
 
         # TAB, Down Arrow, Ctrl-n
         if key in ["\t", "\x1b[B", "\x0e"]:
@@ -190,7 +190,7 @@ class LiveMenu:
             self.cmd_line = head + key + tail
             self.cmd_point += 1
 
-            self.start_process()
+            self._start_process()
 
         # Backspace
         elif key == "\x7f":
@@ -220,21 +220,21 @@ class LiveMenu:
             self.cmd_line = head[:-1] + tail
             self.cmd_point -= 1
 
-            self.start_process()
+            self._start_process()
 
         return None
 
     def display_menu(self) -> tuple[int, str]:
         with Live(
-            self.prepare_menu(), transient=True, auto_refresh=False
+            self._prepare_menu(), transient=True, auto_refresh=False
         ) as live:
             while True:
-                if result := self.parse_input():
+                if result := self._parse_input():
                     return result
 
-                live.update(self.prepare_menu(), refresh=True)
+                live.update(self._prepare_menu(), refresh=True)
 
-    def start_process(self) -> None:
+    def _start_process(self) -> None:
         self.items.clear()
 
         if self.proc is not None:
@@ -255,7 +255,7 @@ class LiveMenu:
             encoding="utf-8",
         )
 
-    def get_proc_output(self) -> None:
+    def _get_proc_output(self) -> None:
         if not self.items and self.proc is not None and self.proc.poll() == 0:
             with contextlib.suppress(TimeoutExpired):
                 outs, _ = self.proc.communicate(timeout=1)
