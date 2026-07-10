@@ -82,7 +82,7 @@ class LiveMenu:
             else 0
         )
         head = self.cmd_line[: self.cmd_point]
-        tail = self.cmd_line[self.cmd_point :] or " "
+        tail = self.cmd_line[self.cmd_point :] or "┊"
         if self.selected != -1:
             head = head.removesuffix(self.word) + self.items[self.selected]
 
