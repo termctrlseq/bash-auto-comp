@@ -6,6 +6,8 @@ Instead of repeatedly pressing `Tab` to cycle or list completions, this project 
 
 The project uses Bash's existing programmable completion system as its completion source—it does **not** implement its own completion logic.
 
+![Autocomplete demo](bash_auto_comp.gif)
+
 ## Why?
 
 Bash already provides excellent command-line editing through Readline, as well as the ability to edit the current command in a full-featured editor (`v` in vi mode or <kbd>Ctrl</kbd>+<kbd>X</kbd>, <kbd>Ctrl</kbd>+<kbd>E</kbd> in emacs mode).
