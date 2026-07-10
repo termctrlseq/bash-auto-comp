@@ -31,7 +31,9 @@ class LiveMenu:
     ) -> None:
         self.cmd_line = cmd_line
         self.cmd_point = len(cmd_line) if cmd_point is None else cmd_point
-        self.prefix = Text.from_ansi(prefix) if prefix else None
+        self.prefix = (
+            Text.from_ansi("") if prefix is None else Text.from_ansi(prefix)
+        )
         self.word = ""
         self.items = []
         self.completed = False
@@ -56,13 +58,11 @@ class LiveMenu:
         self.stop_idx = self.start_idx + self.menu_height
         self.selected = -1
 
-    def display_menu(self) -> Text:
+    def prepare_menu(self) -> Text:
         self.get_proc_output()
 
-        indent = " " * (self.cmd_point - len(self.word))
-        if self.prefix:
-            indent += " " * self.prefix.cell_len
-
+        text = self.prefix.copy()
+        indent = " " * (text.cell_len + self.cmd_point - len(self.word))
         length = (
             max(
                 len(line)
@@ -76,9 +76,11 @@ class LiveMenu:
         if self.selected != -1:
             head = head.removesuffix(self.word) + self.items[self.selected]
 
-        menu_list = [
-            f"[{self.cmd_style}]{head}[reverse]{tail[:1]}[/]{tail[1:]}[/]"
-        ]
+        text.append(
+            Text.from_markup(
+                f"[{self.cmd_style}]{head}[reverse]{tail[:1]}[/]{tail[1:]}[/]"
+            )
+        )
 
         if self.completed:
             self.completed = False
@@ -92,12 +94,13 @@ class LiveMenu:
                 else:
                     style = self.menu_style
 
-                menu_list.append(f"{indent}[{style}]{item:<{length}}[/]")
+                text.append(
+                    Text.from_markup(
+                        f"\n{indent}[{style}]{item:<{length}}[/]"
+                    )
+                )
 
-        if self.prefix:
-            return self.prefix + Text.from_markup("\n".join(menu_list))
-        else:
-            return Text.from_markup("\n".join(menu_list))
+        return text
 
     def get_key(self) -> str | None:
         old = termios.tcgetattr(self.fd)
@@ -113,7 +116,7 @@ class LiveMenu:
 
     def parse_input(self) -> tuple[int, str] | None:
         with Live(
-            self.display_menu(), transient=True, auto_refresh=False
+            self.prepare_menu(), transient=True, auto_refresh=False
         ) as live:
             while True:
                 key = self.get_key()
@@ -214,7 +217,7 @@ class LiveMenu:
 
                     self.start_process()
 
-                live.update(self.display_menu(), refresh=True)
+                live.update(self.prepare_menu(), refresh=True)
 
     def start_process(self) -> None:
         self.items.clear()
@@ -264,7 +267,7 @@ def main() -> None:
 
     menu = LiveMenu(cmd_line=cmd_line, cmd_point=cmd_point, prefix=prefix)
     while result is None:
-        menu.display_menu()
+        menu.prepare_menu()
         result = menu.parse_input()
 
     cmd_point, cmd_line = result
