@@ -15,8 +15,11 @@ import tty
 from pathlib import Path
 from subprocess import PIPE, Popen, TimeoutExpired
 
+from rich.console import Console
 from rich.live import Live
 from rich.text import Text
+
+console = Console()
 
 
 class LiveMenu:
@@ -58,6 +61,13 @@ class LiveMenu:
         self.stop_idx = self.start_idx + self.menu_height
         self.selected = -1
 
+    def wrap_text(self, text: Text) -> int | None:
+        lines = text.wrap(console, console.width)
+        if len(lines) > 1:
+            return lines[0].cell_len
+
+        return None
+
     def prepare_menu(self) -> Text:
         self.get_proc_output()
 
@@ -81,6 +91,9 @@ class LiveMenu:
                 f"[{self.cmd_style}]{head}[reverse]{tail[:1]}[/]{tail[1:]}[/]"
             )
         )
+
+        if wrap := self.wrap_text(text.copy()):
+            indent = indent[wrap:]
 
         if self.completed:
             self.completed = False
