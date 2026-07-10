@@ -61,7 +61,7 @@ class LiveMenu:
         self.stop_idx = self.start_idx + self.menu_height
         self.selected = -1
 
-    def _wrap_text(self, text: Text) -> int | None:
+    def _wrap_offset(self, text: Text) -> int | None:
         lines = text.wrap(console, console.width)
         if len(lines) > 1:
             return lines[0].cell_len
@@ -92,8 +92,8 @@ class LiveMenu:
             )
         )
 
-        if wrap := self._wrap_text(text.copy()):
-            indent = indent[wrap:]
+        if offset := self._wrap_offset(text.copy()):
+            indent = indent[offset:]
 
         if self.completed:
             self.completed = False
