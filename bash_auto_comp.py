@@ -30,7 +30,7 @@ class LiveMenu:
         menu_height: int = 7,
     ) -> None:
         self.cmd_line = cmd_line
-        self.cmd_point = cmd_point or len(cmd_line)
+        self.cmd_point = len(cmd_line) if cmd_point is None else cmd_point
         self.prefix = Text.from_ansi(prefix) if prefix else None
         self.word = ""
         self.items = []
