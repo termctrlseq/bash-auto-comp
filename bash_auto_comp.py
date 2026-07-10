@@ -63,7 +63,14 @@ class LiveMenu:
         if self.prefix:
             indent += " " * self.prefix.cell_len
 
-        length = max(len(line) for line in self.items) if self.items else 0
+        length = (
+            max(
+                len(line)
+                for line in self.items[self.start_idx : self.stop_idx]
+            )
+            if self.items
+            else 0
+        )
         head = self.cmd_line[: self.cmd_point]
         tail = self.cmd_line[self.cmd_point :] or " "
         if self.selected != -1:
