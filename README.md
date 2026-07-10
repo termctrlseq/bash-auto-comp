@@ -133,7 +133,6 @@ The wrapper then updates `READLINE_LINE` and `READLINE_POINT`, allowing editing 
 
 * The completion interface is currently exited using **Esc**.
 * **Enter cannot currently be used to accept a completion.** While the completion interface is active, Readline handles the Enter key in a way that makes this difficult to integrate cleanly.
-* Finding a better solution to this limitation is an ongoing goal of the project.
 
 ## License
 
