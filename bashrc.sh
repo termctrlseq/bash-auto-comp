@@ -2,8 +2,8 @@ bash_auto_comp() {
     local mode="" prompt cmd_file
     local -a result
     # Optional: prepend a vi-mode indicator (for show-mode-in-prompt users).
-    # See console_codes(4): ECMA-48 Select Graphic Rendition
-    # and          bash(1): PROMPTING
+    # See console_codes(4) § ECMA-48 Select Graphic Rendition
+    # and          bash(1) § PROMPTING
     # mode="\[\e[1;38;5;8m\][i]\[\e[0m\]" # Uncomment and customize.
     prompt="${mode}$(perl -pe 's/\\\[\\e\].*?\\\]//g' <<<"${PS1}")"
     cmd_file="$(mktemp)" || return
