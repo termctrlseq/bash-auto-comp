@@ -32,34 +32,34 @@ class LiveMenu:
         prefix: str | None = None,
         menu_height: int = 7,
     ) -> None:
-        self.cmd_line = cmd_line
-        self.cmd_point = len(cmd_line) if cmd_point is None else cmd_point
-        self.prefix = (
+        self._cmd_line = cmd_line
+        self._cmd_point = len(cmd_line) if cmd_point is None else cmd_point
+        self._prefix = (
             Text.from_ansi("") if prefix is None else Text.from_ansi(prefix)
         )
-        self.word = ""
-        self.items = []
-        self.completed = False
+        self._word = ""
+        self._items = []
+        self._completed = False
 
-        self.cmd_style = "color(252)"
-        self.menu_style = "color(66) on color(235)"
-        self.menu_sel_style = "bold magenta on color(237)"
+        self._cmd_style = "color(252)"
+        self._menu_style = "color(66) on color(235)"
+        self._menu_sel_style = "bold magenta on color(237)"
 
-        self.bash_completion = Path(__file__).parent / "bash_auto_comp.sh"
-        self.proc = None
+        self._bash_completion = Path(__file__).parent / "bash_auto_comp.sh"
+        self._proc = None
         self._start_process()
 
-        self.fd = sys.stdin.fileno()
+        self._fd = sys.stdin.fileno()
         try:
-            self.menu_height = min(
-                menu_height, int(os.get_terminal_size(self.fd)[1]) - 1
+            self._menu_height = min(
+                menu_height, int(os.get_terminal_size(self._fd)[1]) - 1
             )
         except OSError:
-            self.menu_height = menu_height
+            self._menu_height = menu_height
 
-        self.start_idx = 0
-        self.stop_idx = self.start_idx + self.menu_height
-        self.selected = -1
+        self._start_idx = 0
+        self._stop_idx = self._start_idx + self._menu_height
+        self._selected = -1
 
     def _wrap_offset(self, text: Text) -> int | None:
         lines = text.wrap(console, console.width)
@@ -71,41 +71,41 @@ class LiveMenu:
     def _prepare_menu(self) -> Text:
         self._get_proc_output()
 
-        text = self.prefix.copy()
-        indent = " " * (text.cell_len + self.cmd_point - len(self.word))
+        text = self._prefix.copy()
+        indent = " " * (text.cell_len + self._cmd_point - len(self._word))
         length = (
             max(
                 len(line)
-                for line in self.items[self.start_idx : self.stop_idx]
+                for line in self._items[self._start_idx : self._stop_idx]
             )
-            if self.items
+            if self._items
             else 0
         )
-        head = self.cmd_line[: self.cmd_point]
-        tail = self.cmd_line[self.cmd_point :] or "┊"
-        if self.selected != -1:
-            head = head.removesuffix(self.word) + self.items[self.selected]
+        head = self._cmd_line[: self._cmd_point]
+        tail = self._cmd_line[self._cmd_point :] or "┊"
+        if self._selected != -1:
+            head = head.removesuffix(self._word) + self._items[self._selected]
 
         text.append(
             Text.from_markup(
-                f"[{self.cmd_style}]{head}[reverse]{tail[:1]}[/]{tail[1:]}[/]"
+                f"[{self._cmd_style}]{head}[reverse]{tail[:1]}[/]{tail[1:]}[/]"
             )
         )
 
         if offset := self._wrap_offset(text.copy()):
             indent = indent[offset:]
 
-        if self.completed:
-            self.completed = False
+        if self._completed:
+            self._completed = False
         else:
             for i, item in enumerate(
-                self.items[self.start_idx : self.stop_idx],
-                start=self.start_idx,
+                self._items[self._start_idx : self._stop_idx],
+                start=self._start_idx,
             ):
-                if i == self.selected:
-                    style = self.menu_sel_style
+                if i == self._selected:
+                    style = self._menu_sel_style
                 else:
-                    style = self.menu_style
+                    style = self._menu_style
 
                 text.append(
                     Text.from_markup(
@@ -116,14 +116,14 @@ class LiveMenu:
         return text
 
     def _get_key(self) -> str | None:
-        old = termios.tcgetattr(self.fd)
+        old = termios.tcgetattr(self._fd)
         try:
-            tty.setcbreak(self.fd)
-            rlist = select.select([self.fd], [], [], 0.2)[0]
+            tty.setcbreak(self._fd)
+            rlist = select.select([self._fd], [], [], 0.2)[0]
             if rlist:
-                return os.read(self.fd, 6).decode()
+                return os.read(self._fd, 6).decode()
         finally:
-            termios.tcsetattr(self.fd, termios.TCSADRAIN, old)
+            termios.tcsetattr(self._fd, termios.TCSADRAIN, old)
 
         return None
 
@@ -132,93 +132,95 @@ class LiveMenu:
 
         # TAB, Down Arrow, Ctrl-n
         if key in ["\t", "\x1b[B", "\x0e"]:
-            if self.selected < len(self.items) - 1:
-                self.selected += 1
-                if self.selected > self.stop_idx - 1:
-                    self.stop_idx = self.selected + 1
-                    self.start_idx = self.stop_idx - self.menu_height
+            if self._selected < len(self._items) - 1:
+                self._selected += 1
+                if self._selected > self._stop_idx - 1:
+                    self._stop_idx = self._selected + 1
+                    self._start_idx = self._stop_idx - self._menu_height
             else:
-                self.selected = -1
-                self.start_idx = 0
-                self.stop_idx = self.menu_height
+                self._selected = -1
+                self._start_idx = 0
+                self._stop_idx = self._menu_height
 
         # Shift-TAB, Up Arrow, Ctrl-p
         elif key in ["\x1b[Z", "\x1b[A", "\x10"]:
-            if self.selected > -1:
-                self.selected -= 1
-                if self.selected < self.start_idx:
-                    self.start_idx = max(self.selected, 0)
-                    self.stop_idx = self.start_idx + self.menu_height
+            if self._selected > -1:
+                self._selected -= 1
+                if self._selected < self._start_idx:
+                    self._start_idx = max(self._selected, 0)
+                    self._stop_idx = self._start_idx + self._menu_height
             else:
-                self.selected = len(self.items) - 1
-                self.stop_idx = self.selected + 1
-                self.start_idx = max(0, self.stop_idx - self.menu_height)
+                self._selected = len(self._items) - 1
+                self._stop_idx = self._selected + 1
+                self._start_idx = max(0, self._stop_idx - self._menu_height)
 
         # Enter, Escape
         elif key in ["\n", "\x1b"]:
-            if self.selected != -1:
-                head = self.cmd_line[: self.cmd_point]
-                tail = self.cmd_line[self.cmd_point :]
-                if self.word and self.items[self.selected].startswith(
-                    self.word
+            if self._selected != -1:
+                head = self._cmd_line[: self._cmd_point]
+                tail = self._cmd_line[self._cmd_point :]
+                if self._word and self._items[self._selected].startswith(
+                    self._word
                 ):
-                    head = head.removesuffix(self.word)
-                    self.cmd_point -= len(self.word)
-                head += f"{self.items[self.selected]}"
-                self.cmd_line = head + tail
-                self.cmd_point += len(self.items[self.selected])
+                    head = head.removesuffix(self._word)
+                    self._cmd_point -= len(self._word)
+                head += f"{self._items[self._selected]}"
+                self._cmd_line = head + tail
+                self._cmd_point += len(self._items[self._selected])
 
-            return self.cmd_point, self.cmd_line
+            return self._cmd_point, self._cmd_line
 
         # " " <= key <= "~":
         elif key and key.isprintable():
-            head = self.cmd_line[: self.cmd_point]
-            tail = self.cmd_line[self.cmd_point :]
-            if self.selected != -1:
+            head = self._cmd_line[: self._cmd_point]
+            tail = self._cmd_line[self._cmd_point :]
+            if self._selected != -1:
                 head = (
-                    head.removesuffix(self.word) + self.items[self.selected]
+                    head.removesuffix(self._word)
+                    + self._items[self._selected]
                 )
-                self.cmd_point += len(self.items[self.selected]) - len(
-                    self.word
+                self._cmd_point += len(self._items[self._selected]) - len(
+                    self._word
                 )
-                self.word = ""
-                self.selected = -1
-                self.start_idx = 0
-                self.stop_idx = self.start_idx + self.menu_height
+                self._word = ""
+                self._selected = -1
+                self._start_idx = 0
+                self._stop_idx = self._start_idx + self._menu_height
             else:
-                self.word = ""
-            self.cmd_line = head + key + tail
-            self.cmd_point += 1
+                self._word = ""
+            self._cmd_line = head + key + tail
+            self._cmd_point += 1
 
             self._start_process()
 
         # Backspace
         elif key == "\x7f":
-            if self.cmd_point <= 0:
-                return self.cmd_point, self.cmd_line
+            if self._cmd_point <= 0:
+                return self._cmd_point, self._cmd_line
 
-            head = self.cmd_line[: self.cmd_point]
-            tail = self.cmd_line[self.cmd_point :]
+            head = self._cmd_line[: self._cmd_point]
+            tail = self._cmd_line[self._cmd_point :]
 
-            if self.selected != -1:
+            if self._selected != -1:
                 # Replace word with selected item, than backtrack
                 head = (
-                    head.removesuffix(self.word) + self.items[self.selected]
+                    head.removesuffix(self._word)
+                    + self._items[self._selected]
                 )
-                self.cmd_point += len(self.items[self.selected]) - len(
-                    self.word
+                self._cmd_point += len(self._items[self._selected]) - len(
+                    self._word
                 )
-                self.word = self.items[self.selected][:-1]
-                self.completed = True
-                self.selected = -1
+                self._word = self._items[self._selected][:-1]
+                self._completed = True
+                self._selected = -1
 
-            elif self.word:
+            elif self._word:
                 # Remove last character in word
-                self.word = self.word[:-1]
+                self._word = self._word[:-1]
 
             # Remove character before point
-            self.cmd_line = head[:-1] + tail
-            self.cmd_point -= 1
+            self._cmd_line = head[:-1] + tail
+            self._cmd_point -= 1
 
             self._start_process()
 
@@ -235,34 +237,38 @@ class LiveMenu:
                 live.update(self._prepare_menu(), refresh=True)
 
     def _start_process(self) -> None:
-        self.items.clear()
+        self._items.clear()
 
-        if self.proc is not None:
-            if self.proc.poll() is None:
+        if self._proc is not None:
+            if self._proc.poll() is None:
                 try:
-                    self.proc.terminate()
-                    self.proc.communicate(timeout=1)
+                    self._proc.terminate()
+                    self._proc.communicate(timeout=1)
                 except TimeoutExpired:
-                    self.proc.kill()
-                    self.proc.communicate()
+                    self._proc.kill()
+                    self._proc.communicate()
             else:
-                self.proc.communicate()
+                self._proc.communicate()
 
-        self.proc = Popen(
-            [self.bash_completion, self.cmd_line[: self.cmd_point]],
+        self._proc = Popen(
+            [self._bash_completion, self._cmd_line[: self._cmd_point]],
             stdout=PIPE,
             stderr=PIPE,
             encoding="utf-8",
         )
 
     def _get_proc_output(self) -> None:
-        if not self.items and self.proc is not None and self.proc.poll() == 0:
+        if (
+            not self._items
+            and self._proc is not None
+            and self._proc.poll() == 0
+        ):
             with contextlib.suppress(TimeoutExpired):
-                outs, _ = self.proc.communicate(timeout=1)
+                outs, _ = self._proc.communicate(timeout=1)
                 out_lines = outs.splitlines()
                 if len(out_lines) >= 2:
-                    self.word = out_lines[0]
-                    self.items = sorted(
+                    self._word = out_lines[0]
+                    self._items = sorted(
                         set(out_lines[1:]), key=lambda x: len(x)
                     )
 
