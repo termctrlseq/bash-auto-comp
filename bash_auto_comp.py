@@ -210,11 +210,11 @@ class LiveMenu:
                 self._cmd_point += len(self._items[self._selected]) - len(
                     self._word
                 )
-                self._word = self._items[self._selected][:-1]
+                self._word = self._items[self._selected]
                 self._completed = True
                 self._selected = -1
 
-            elif self._word:
+            if self._word:
                 # Remove last character in word
                 self._word = self._word[:-1]
 
