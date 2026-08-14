@@ -2,8 +2,6 @@
 
 An interactive completion menu for Bash that appears directly on the command line.
 
-Instead of repeatedly pressing `Tab` to cycle or list completions, this project lets you browse completion candidates in an interactive terminal interface while keeping your current command line visible.
-
 The project uses Bash's existing programmable completion system as its completion source—it does **not** implement its own completion logic.
 
 ![Autocomplete demo](bash_auto_comp.gif)
@@ -90,33 +88,22 @@ source ~/.bashrc
 
 ## Usage
 
-Press **Alt+M** to open the completion menu.
-
-The default configuration enables the key binding in:
-
-* vi command mode
-* vi insert mode
-* emacs mode
-
+Press **Alt+m** to open the completion menu (**Esc m** also works).
 You can change the activation key by modifying the `bind` commands in your `.bashrc`.
+
+`Tab/STab`, `Ctrl-N/Ctrl-P`, `Arrow Keys` - Next/Previous
+`Escape/Ctrl-D` - Choose candidate/End auto completion
 
 ## Optional Prompt Indicator
 
-The wrapper includes an optional `mode` variable that can be used to display a custom prompt indicator while the completion menu is active.
-
-By default it is disabled:
-
-```bash
-local mode=""
-```
-
-For example:
+The wrapper includes an optional `mode` variable that can be used to display a custom prompt indicator while the completion menu is active (by default it is disabled).
+For example, to display `[i]` using terminal color 8 (bright black):
 
 ```bash
 mode="\[\e[1;38;5;8m\][i]\[\e[0m\]"
 ```
 
-Customize it however you like, or leave it empty.
+Customize it however you like, or leave it commented out.
 
 ## How It Works
 
@@ -133,7 +120,7 @@ The wrapper then updates `READLINE_LINE` and `READLINE_POINT`, allowing editing 
 
 ## Known Limitations
 
-* The completion interface is currently exited using **Esc**.
+* The completion interface is currently exited using **Esc** or **Ctrl-D**.
 * **Enter cannot currently be used to accept a completion.** While the completion interface is active, Readline handles the Enter key in a way that makes this difficult to integrate cleanly.
 
 ## License
