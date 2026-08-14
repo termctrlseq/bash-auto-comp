@@ -154,8 +154,8 @@ class LiveMenu:
                 self._stop_idx = self._selected + 1
                 self._start_idx = max(0, self._stop_idx - self._menu_height)
 
-        # Enter, Escape
-        elif key in ["\n", "\x1b"]:
+        # Enter, Escape, Ctrl-d
+        elif key in ["\n", "\x1b", "\x04"]:
             if self._selected != -1:
                 head = self._cmd_line[: self._cmd_point]
                 tail = self._cmd_line[self._cmd_point :]
