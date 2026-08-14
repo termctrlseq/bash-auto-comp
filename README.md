@@ -92,6 +92,7 @@ Press **Alt+m** to open the completion menu (**Esc m** also works).
 You can change the activation key by modifying the `bind` commands in your `.bashrc`.
 
 `Tab/STab`, `Ctrl-N/Ctrl-P`, `Arrow Keys` - Next/Previous
+
 `Escape/Ctrl-D` - Choose candidate/End auto completion
 
 ## Optional Prompt Indicator
