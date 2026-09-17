@@ -93,7 +93,7 @@ You can change the activation key by modifying the `bind` commands in your `.bas
 
 `Tab/STab`, `Ctrl-N/Ctrl-P`, `Arrow Keys` - Next/Previous
 
-`Escape/Ctrl-D/Alt-M` - Choose candidate/End auto completion (no Enter unfortunately)
+`Escape/Ctrl-D/Ctrl-J/Alt-M` - Choose candidate/End auto completion (no Enter unfortunately)
 
 ## Optional Prompt Indicator
 
