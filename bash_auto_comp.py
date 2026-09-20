@@ -82,7 +82,7 @@ class LiveMenu:
             else 0
         )
         head = self._cmd_line[: self._cmd_point]
-        tail = self._cmd_line[self._cmd_point :] or "┊"
+        tail = self._cmd_line[self._cmd_point :] or "_"
         if self._selected != -1:
             head = head.removesuffix(self._word) + self._items[self._selected]
 
@@ -154,8 +154,8 @@ class LiveMenu:
                 self._stop_idx = self._selected + 1
                 self._start_idx = max(0, self._stop_idx - self._menu_height)
 
-        # Enter, Escape, Ctrl-d, Alt-m
-        elif key in ["\n", "\x1b", "\x04", "\x1b\x6d"]:
+        # Enter, Escape, Ctrl-d, Ctrl-m, Alt-m
+        elif key in ["\n", "\x1b", "\x04", "\x0d", "\x1bm"]:
             if self._selected != -1:
                 head = self._cmd_line[: self._cmd_point]
                 tail = self._cmd_line[self._cmd_point :]
@@ -274,16 +274,13 @@ class LiveMenu:
 
 
 def main() -> None:
-    if len(sys.argv) != 5:
+    if len(sys.argv) < 2:
         return
 
-    cmd_line = sys.argv[1]
-    try:
-        cmd_point = int(sys.argv[2])
-    except ValueError:
-        return
-    cmd_file = Path(sys.argv[3])
-    prefix = sys.argv[4]
+    cmd_line = os.environ.get("READLINE_LINE") or ""
+    cmd_point = int(os.environ.get("READLINE_POINT") or 0)
+    cmd_file = Path(sys.argv[1])
+    prefix = sys.argv[2] if len(sys.argv) == 3 else "\033[1;32m$\033[0m "
 
     menu = LiveMenu(cmd_line=cmd_line, cmd_point=cmd_point, prefix=prefix)
     result = menu.display_menu()

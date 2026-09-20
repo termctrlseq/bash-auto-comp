@@ -16,14 +16,6 @@ It is intended for situations where a command is becoming long enough that you n
 
 The goal is not to replace Readline or external-editor workflows, but to provide another tool for the cases in between.
 
-## Experimental Status
-
-This project is currently experimental.
-
-Its primary purpose is to explore an alternative completion workflow using Bash's existing completion infrastructure. While it is usable, there are still limitations imposed by Readline that affect the user experience.
-
-Feedback, ideas, and experimentation are welcome.
-
 ## Requirements
 
 * Bash
@@ -61,8 +53,6 @@ bash_auto_comp() {
     trap 'rm -f "$cmd_file"' RETURN
 
     bash_auto_comp.py     \
-        "$READLINE_LINE"  \
-        "$READLINE_POINT" \
         "$cmd_file"       \
         "${prompt@P}"
 
@@ -93,7 +83,7 @@ You can change the activation key by modifying the `bind` commands in your `.bas
 
 `Tab/STab`, `Ctrl-N/Ctrl-P`, `Arrow Keys` - Next/Previous
 
-`Escape/Ctrl-D/Ctrl-J/Alt-M` - Choose candidate/End auto completion (no Enter unfortunately)
+`Enter/Escape/Ctrl-D/Ctrl-M/Ctrl-J/Alt-M` - Choose candidate/End auto completion
 
 ## Optional Prompt Indicator
 
@@ -105,24 +95,6 @@ mode="\[\e[1;38;5;8m\][i]\[\e[0m\]"
 ```
 
 Customize it however you like, or leave it commented out.
-
-## How It Works
-
-When invoked, the Bash wrapper passes the following information to `bash_auto_comp.py`:
-
-* the current command line (`READLINE_LINE`)
-* the current cursor position (`READLINE_POINT`)
-* a temporary output file
-* the expanded shell prompt
-
-The Python program queries Bash's programmable completion system, presents the available completion candidates in an interactive terminal interface, and writes the updated command line and cursor position back to the temporary file.
-
-The wrapper then updates `READLINE_LINE` and `READLINE_POINT`, allowing editing to continue seamlessly from the selected completion.
-
-## Known Limitations
-
-* The completion interface is currently exited using **Esc** or **Ctrl-D**.
-* **Enter cannot currently be used to accept a completion.** While the completion interface is active, Readline handles the Enter key in a way that makes this difficult to integrate cleanly.
 
 ## License
 

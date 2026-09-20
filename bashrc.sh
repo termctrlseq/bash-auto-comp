@@ -1,3 +1,4 @@
+# Add this to .bashrc
 bash_auto_comp() {
     local mode="" prompt cmd_file
     local -a result
@@ -10,8 +11,6 @@ bash_auto_comp() {
     trap 'rm -f "$cmd_file"' RETURN
 
     bash_auto_comp.py \
-        "$READLINE_LINE" \
-        "$READLINE_POINT" \
         "$cmd_file" \
         "${prompt@P}"
 
@@ -23,6 +22,7 @@ bash_auto_comp() {
         fi
     fi
 }
+# Bind to Alt-M (Esc M) by default
 bind -m vi-command -x '"\em": bash_auto_comp'
 bind -m vi-insert -x '"\em": bash_auto_comp'
 bind -m emacs -x '"\em": bash_auto_comp'
