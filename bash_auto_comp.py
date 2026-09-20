@@ -276,13 +276,18 @@ class LiveMenu:
 
 
 def main() -> None:
-    if len(sys.argv) < 2:
+    if len(sys.argv) < 3:
         return
 
-    cmd_line = os.environ.get("READLINE_LINE") or ""
-    cmd_point = int(os.environ.get("READLINE_POINT") or 0)
     cmd_file = Path(sys.argv[1])
-    prefix = sys.argv[2] if len(sys.argv) == 3 else "\033[1;32m$\033[0m "
+    prefix = sys.argv[2]
+
+    if len(sys.argv) > 3:
+        cmd_line = sys.argv[3]
+        cmd_point = len(cmd_line)
+    else:
+        cmd_line = os.environ.get("READLINE_LINE") or ""
+        cmd_point = int(os.environ.get("READLINE_POINT") or 0)
 
     menu = LiveMenu(cmd_line=cmd_line, cmd_point=cmd_point, prefix=prefix)
     result = menu.display_menu()
