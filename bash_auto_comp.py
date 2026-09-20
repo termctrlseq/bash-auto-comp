@@ -269,9 +269,10 @@ class LiveMenu:
                 out_lines = outs.splitlines()
                 if len(out_lines) >= 2:
                     self._word = out_lines[0]
-                    self._items = sorted(
-                        set(out_lines[1:]), key=lambda x: len(x)
-                    )
+                    # the candidates can be sorted here
+                    for item in out_lines[1:]:
+                        if item not in self._items:
+                            self._items.append(item)
 
 
 def main() -> None:
