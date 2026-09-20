@@ -45,14 +45,12 @@
 # shellcheck disable=SC2155
 
 auto_complete() {
-    (($# == 1)) || return
-    if ! command -v _comp_compgen; then
-        source /usr/share/bash-completion/bash_completion || return
-    fi
+    source /usr/share/bash-completion/bash_completion
 
-    COMP_LINE="$1"
-    COMP_POINT="${#1}"
-    read -ra COMP_WORDS <<<"$COMP_LINE"
+    COMP_LINE="$*"
+    COMP_POINT="${#COMP_LINE}"
+    COMP_KEY="${COMP_LINE: -1}"
+    COMP_WORDS=("$@")
     ((COMP_CWORD = ${#COMP_WORDS[@]} - 1))
 
     # Start of a copied part of _comp_command_offset() function
@@ -60,7 +58,7 @@ auto_complete() {
     local cur
     _comp_get_words cur || return # MODIFIED: return on failure
 
-    if ((COMP_CWORD == 0)); then
+    if ((COMP_CWORD <= 0)); then
         _comp_compgen_commands 2>/dev/null # MODIFIED: ignore errors
     else
         _comp_dequote "${COMP_WORDS[0]}"
@@ -162,15 +160,6 @@ auto_complete() {
                 fi
 
                 # MODIFIED: no need to restore compopts
-                # restore initial compopts
-                # local opt
-                # while [[ $cspec == *" -o "* ]]; do
-                #     # FIXME: should we take "+o opt" into account?
-                #     cspec=${cspec#*-o }
-                #     opt=${cspec%% *}
-                #     compopt -o "$opt"
-                #     cspec=${cspec#"$opt"}
-                # done
             else
                 cspec=${cspec#complete}
                 cspec=${cspec%%@("$compcmd"|"'${compcmd//\'/\'\\\'\'}'")}
@@ -181,11 +170,12 @@ auto_complete() {
     fi
     # End of a copied part
 
-    if ((${#COMPREPLY[@]} == 0)); then
-        mapfile -t COMPREPLY < <(compgen -f "$cur")
-    fi
-
     printf '%s\n' "$cur" "${COMPREPLY[@]}"
 }
-auto_complete "$1"
+
+((${#@} == 1)) && {
+    read -ra auto_comp_args <<<"$1"
+    [[ "${1: -1}" == " " ]] && auto_comp_args+=('')
+    auto_complete "${auto_comp_args[@]}"
+}
 
