@@ -52,9 +52,7 @@ bash_auto_comp() {
     cmd_file="$(mktemp)" || return
     trap 'rm -f "$cmd_file"' RETURN
 
-    bash_auto_comp.py     \
-        "$cmd_file"       \
-        "${prompt@P}"
+    bash_auto_comp.py "$cmd_file" "${prompt@P}"
 
     if [[ -r "$cmd_file" ]]; then
         mapfile -t result <"$cmd_file"

@@ -1,4 +1,9 @@
 # Add this to .bashrc
+
+# add ~/.local/bin to PATH if not in it
+[[ ":${PATH}:" != *:"${HOME}/.local/bin":* ]] &&
+    export PATH="${HOME}/.local/bin:${PATH}"
+
 bash_auto_comp() {
     local mode="" prompt cmd_file
     local -a result
@@ -10,9 +15,7 @@ bash_auto_comp() {
     cmd_file="$(mktemp)" || return
     trap 'rm -f "$cmd_file"' RETURN
 
-    bash_auto_comp.py \
-        "$cmd_file" \
-        "${prompt@P}"
+    bash_auto_comp.py "$cmd_file" "${prompt@P}"
 
     if [[ -r "$cmd_file" ]]; then
         mapfile -t result <"$cmd_file"
