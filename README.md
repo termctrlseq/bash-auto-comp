@@ -41,6 +41,10 @@ chmod +x ~/.local/bin/bash_auto_comp.py
 Add the following to your `~/.bashrc`:
 
 ```bash
+# add ~/.local/bin to PATH if not in it
+[[ ":${PATH}:" != *:"${HOME}/.local/bin":* ]] &&
+    export PATH="${HOME}/.local/bin:${PATH}"
+
 bash_auto_comp() {
     local mode="" prompt cmd_file
     local -a result
