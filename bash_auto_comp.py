@@ -44,6 +44,7 @@ class LiveMenu:
         self._cmd_style = "color(252)"
         self._menu_style = "color(66) on color(235)"
         self._menu_sel_style = "bold magenta on color(237)"
+        self._cursor_style = "reverse"
 
         self._bash_completion = Path(__file__).parent / "bash_auto_comp.sh"
         self._proc = None
@@ -88,7 +89,7 @@ class LiveMenu:
 
         text.append(
             Text.from_markup(
-                f"[{self._cmd_style}]{head}[reverse]{tail[:1]}[/]{tail[1:]}[/]"
+                f"[{self._cmd_style}]{head}[{self._cursor_style}]{tail[:1]}[/]{tail[1:]}[/]"
             )
         )
 
