@@ -62,6 +62,15 @@ class LiveMenu:
         self._stop_idx = self._start_idx + self._menu_height
         self._selected = -1
 
+    def __enter__(self):
+        self._old = termios.tcgetattr(self._fd)
+        tty.setcbreak(self._fd)
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        termios.tcsetattr(self._fd, termios.TCSADRAIN, self._old)
+        return False
+
     def _wrap_offset(self, text: Text) -> int | None:
         lines = text.wrap(console, console.width)
         if len(lines) > 1:
@@ -117,14 +126,10 @@ class LiveMenu:
         return text
 
     def _get_key(self) -> str | None:
-        old = termios.tcgetattr(self._fd)
-        try:
-            tty.setcbreak(self._fd)
-            rlist = select.select([self._fd], [], [], 0.2)[0]
-            if rlist:
-                return os.read(self._fd, 6).decode()
-        finally:
-            termios.tcsetattr(self._fd, termios.TCSADRAIN, old)
+        termios.tcflush(self._fd, termios.TCIFLUSH)
+        rlist = select.select([self._fd], [], [], 0.2)[0]
+        if rlist:
+            return os.read(self._fd, 6).decode()
 
         return None
 
@@ -289,8 +294,10 @@ def main() -> None:
         cmd_line = os.environ.get("READLINE_LINE") or ""
         cmd_point = int(os.environ.get("READLINE_POINT") or 0)
 
-    menu = LiveMenu(cmd_line=cmd_line, cmd_point=cmd_point, prefix=prefix)
-    result = menu.display_menu()
+    with LiveMenu(
+        cmd_line=cmd_line, cmd_point=cmd_point, prefix=prefix
+    ) as menu:
+        result = menu.display_menu()
 
     cmd_point, cmd_line = result
     with cmd_file.open("w") as fd:
