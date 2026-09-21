@@ -170,10 +170,14 @@ auto_complete() {
     fi
     # End of a copied part
 
+    if [[ -n $cur ]] && ((${#COMPREPLY[@]} == 0)); then
+        mapfile -t COMPREPLY < <(compgen -f "$cur")
+    fi
+
     printf '%s\n' "$cur" "${COMPREPLY[@]}"
 }
 
-((${#@} == 1)) && {
+(($# == 1)) && {
     read -ra auto_comp_args <<<"$1"
     [[ "${1: -1}" == " " ]] && auto_comp_args+=('')
     auto_complete "${auto_comp_args[@]}"
