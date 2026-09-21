@@ -161,7 +161,8 @@ class LiveMenu:
                 self._start_idx = max(0, self._stop_idx - self._menu_height)
 
         # Enter, Escape, Ctrl-d, Ctrl-m, Alt-m
-        elif key in ["\n", "\x1b", "\x04", "\x0d", "\x1bm"]:
+        # Note: it is Ctrl-m that enables Enter key
+        elif key in ["\x1b", "\x04", "\x0d", "\x1bm"]:
             if self._selected != -1:
                 head = self._cmd_line[: self._cmd_point]
                 tail = self._cmd_line[self._cmd_point :]
@@ -237,7 +238,7 @@ class LiveMenu:
             self._prepare_menu(), transient=True, auto_refresh=False
         ) as live:
             while True:
-                if result := self._parse_input():
+                if (result := self._parse_input()) is not None:
                     return result
 
                 live.update(self._prepare_menu(), refresh=True)
