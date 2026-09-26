@@ -1,7 +1,7 @@
 [project]
 name = "bash-menu-comp"
 version = "0.1.0"
-description = "Add your description here"
+description = "A modified derivative of the bash-completion _comp_command_offset(), adapted for use as an automatic-completion source."
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
