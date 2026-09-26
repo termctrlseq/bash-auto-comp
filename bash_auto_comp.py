@@ -193,11 +193,14 @@ class LiveMenu:
                 self._selected = -1
                 self._start_idx = 0
                 self._stop_idx = self._start_idx + self._menu_height
+                if head and head.endswith("/") and key == "/":
+                    head = head.removesuffix("/")
+                    self._cmd_point -= 1
             else:
                 self._word = ""
+
             self._cmd_line = head + key + tail
             self._cmd_point += 1
-
             self._start_process()
 
         # Backspace
