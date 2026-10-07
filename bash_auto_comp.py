@@ -46,7 +46,7 @@ class LiveMenu:
         self._menu_sel_style = "bold magenta on color(237)"
         self._cursor_style = "reverse"
 
-        self._bash_completion = Path(__file__).parent / "bash_auto_comp.sh"
+        self._bash_completion = Path(__file__).with_suffix(".sh")
         self._proc = None
         self._start_process()
 
