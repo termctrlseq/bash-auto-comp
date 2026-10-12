@@ -10,7 +10,7 @@ die() {
 }
 
 install_bash_auto_comp() {
-    declare install_path="${HOME}/.local/bin/" bash_auto_comp_py='./bash_auto_comp.py' bash_auto_comp_sh='./auto-bash-completion/bash_auto_comp.sh'
+    declare install_path="${HOME}/.local/bin" bash_auto_comp_py='./bash_auto_comp.py' bash_auto_comp_sh='./auto-bash-completion/bash_auto_comp.sh'
     [[ -n $1 ]] && install_path="$1"
 
     [[ -r $bash_auto_comp_py ]] || die "'${bash_auto_comp_py}' not found"
