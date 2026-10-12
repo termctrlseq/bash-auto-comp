@@ -4,7 +4,7 @@
 [[ ":${PATH}:" != *:"${HOME}/.local/bin":* ]] &&
     export PATH="${HOME}/.local/bin:${PATH}"
 
-bash_auto_comp() {
+bash-auto-comp() {
     local mode="" prompt cmd_file
     local -a result
     # Optional: prepend a vi-mode indicator (for show-mode-in-prompt users).
@@ -15,9 +15,8 @@ bash_auto_comp() {
     cmd_file="$(mktemp)" || return
     trap 'rm -f "$cmd_file"' RETURN
 
-    bash_auto_comp.py "$cmd_file" "${prompt@P}"
-
-    if [[ -r "$cmd_file" ]]; then
+    if bash_auto_comp.py "$cmd_file" "${prompt@P}" &&
+        [[ -r "$cmd_file" ]]; then
         mapfile -t result <"$cmd_file"
         if ((${#result[@]} == 2)); then
             READLINE_POINT="${result[0]}"
@@ -26,7 +25,7 @@ bash_auto_comp() {
     fi
 }
 # Bind to Alt-M (Esc M) by default
-bind -m vi-command -x '"\em": bash_auto_comp'
-bind -m vi-insert -x '"\em": bash_auto_comp'
-bind -m emacs -x '"\em": bash_auto_comp'
+bind -m vi-command -x '"\em": bash-auto-comp'
+bind -m vi-insert -x '"\em": bash-auto-comp'
+bind -m emacs -x '"\em": bash-auto-comp'
 
