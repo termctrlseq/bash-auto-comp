@@ -277,7 +277,7 @@ class LiveMenu:
                 outs, _ = self._proc.communicate(timeout=1)
                 out_lines = outs.splitlines()
                 if len(out_lines) >= 2:
-                    self._word = out_lines[0]
+                    self._word = out_lines[0].split("=")[-1]
                     # the candidates can be sorted here
                     for item in out_lines[1:]:
                         if item not in self._items:
