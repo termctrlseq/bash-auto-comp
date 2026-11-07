@@ -1,7 +1,7 @@
 [project]
-name = "bash-menu-comp"
+name = "bash-auto-comp"
 version = "0.1.0"
-description = "A modified derivative of the bash-completion _comp_command_offset(), adapted for use as an automatic-completion source."
+description = "An auto completion menu for bash"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
@@ -16,34 +16,13 @@ dependencies = [
 
 [tool.ruff]
 line-length = 78
-show-fixes = true
 unsafe-fixes = true
 
 [tool.ruff.lint]
 extend-select = [
-  # flake8-bugbear
-  "B",
   # flake8-builtins
   "A",
-  # flake8-executable
-  "EXE",
-  # flake4-pie
-  "PIE",
   # flake8-symplify
   "SIM",
-  # flake8-unused-arguments
-  "ARG",
-  # isort
-  "I",
-  # pep8-naming
-  "N",
-  # pycodestyle
-  "E",
-  "W",
-  # Pyflakes
-  "F",
-  # pyupgrade
-  "UP",
-  # Pylint
-  "PLE",
 ]
+ignore = ["I", "F401", "F841"]
